@@ -1,6 +1,6 @@
 import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, VStack } from "@chakra-ui/react";
-import React, { ReactElement, useState } from "react";
-
+import React, { useState } from "react";
+import { useToast } from "@chakra-ui/react";
 
 export const Signup = () => {
     const [show, setShow] = useState<boolean>(false);
@@ -10,11 +10,50 @@ export const Signup = () => {
     const [password, setPassword] = useState<string>();
     const [confirmPassword, setConfirmPassword] = useState<string>();
     const [pic, setPic] = useState<string>();
+    const [loading, setLoading] = useState(false);
+    const toast = useToast()
 
     const handleClick = () => setShow(!show);
 
     const postDetails = (pics:any) => {
-        setPic(pics);
+        setLoading(true);
+        if(pics === undefined) {
+            toast({
+                title: 'Please select an Image!',
+                status: 'warning',
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
+            return;
+        }
+        if(pics.type === "image/jpeg" || pics.type === "image/png") {
+            const data = new FormData();
+            data.append("file", pics)
+            data.append("upload_preset","chat-app")
+            data.append("cloud_name","fylip")
+            fetch("https://api.cloudinary.com/v1_1/fylip/image/upload", {
+                method: 'post', body: data, 
+            }).then((res) => res.json())
+            .then(data => {
+                setPic(data.url.toString())
+                console.log(data.url.toString())
+                setLoading(false);
+            }).catch((err: Error) => {
+                console.log(err.message);
+                setLoading(false);
+            })
+        } else {
+            toast({
+                title: 'Please select an Image!',
+                status: 'warning',
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
+            setLoading(false);
+            return;
+        }
     }
 
     const handleSubmit = () => {
@@ -58,7 +97,7 @@ export const Signup = () => {
                     </InputRightElement>
                 </InputGroup>
             </FormControl>
-            <FormControl id="password" isRequired>
+            <FormControl id="confirmPassword" isRequired>
                 <FormLabel>
                     Confirm Password
                 </FormLabel>
@@ -92,6 +131,7 @@ export const Signup = () => {
             width={'100%'}
             style={{marginTop: 15}}
             onClick={handleSubmit}
+            isLoading={loading} 
             >
                 Sign Up
             </Button>

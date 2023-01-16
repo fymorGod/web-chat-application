@@ -8,7 +8,7 @@ export interface IUser extends Document {
     pic: String;
     comparePasswords(candidatePassword: string ): boolean;
 }
-const salt: number = 10;
+const salt: number = 10; //encrypt
 
 const userSchema:Schema<IUser> = new mongoose.Schema(
     {

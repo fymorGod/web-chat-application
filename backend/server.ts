@@ -10,14 +10,16 @@ dotenv.config()
 
 connectDB();
 const app = express();
-app.use(cors())
-app.use(express.json() // to accept JSON
-)
+
+app.use(cors());
+
+app.use(express.json()) // to accept JSON
 app.get('/', (req:Request, res: Response) => {
     res.send("Api is running")
 })
 
 app.use('/api/user', router)
+
 app.use(notFound)
 app.use(errorHandler)
 

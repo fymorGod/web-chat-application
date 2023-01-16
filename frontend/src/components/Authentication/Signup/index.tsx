@@ -1,6 +1,8 @@
 import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, VStack } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useToast } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import { app } from "../../../api/app";
 
 export const Signup = () => {
     const [show, setShow] = useState<boolean>(false);
@@ -10,9 +12,9 @@ export const Signup = () => {
     const [password, setPassword] = useState<string>();
     const [confirmPassword, setConfirmPassword] = useState<string>();
     const [pic, setPic] = useState<string>();
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const toast = useToast()
-
+    const navigate = useNavigate()
     const handleClick = () => setShow(!show);
 
     const postDetails = (pics:any) => {
@@ -54,11 +56,69 @@ export const Signup = () => {
             setLoading(false);
             return;
         }
-    }
+    };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        setLoading(true);   
+        if (!name || !email || !password || !confirmPassword) {
+            toast({
+                title: 'Please fill all the fields',
+                status: 'warning',
+                duration: 5000,
+                isClosable: true,
+                position: 'bottom'
+            });
+            setLoading(false);
+            return;
+        }
+        if (password !== confirmPassword) {
+            toast({
+                title: 'Passwords do not match',
+                status: 'warning',
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
+            return;
+        };
 
-    }
+        try {
+            const config = {
+                headers: {
+                    "Content-type": "application/json",                    
+                },
+            };
+            const { data } = await app.post('/api/user', {
+                name,
+                email,
+                password,
+                pic,
+            },
+            config);
+
+            toast({
+                title: 'Registration Successful',
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
+
+            localStorage.setItem('userInfo', JSON.stringify(data));
+            setLoading(false);
+            navigate('/chats');
+        } catch (error:any) {
+            toast({
+                title: "Error Occured!",
+                description: error.response.data.message,
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+                position: 'bottom'
+            });
+            setLoading(false);
+        }
+    };
 
     return (
         <VStack spacing={'5px'} color={'black'}>

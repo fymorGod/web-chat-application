@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler'
 import { generateToken } from '../config/generateToken';
 import { User } from '../models/userModel';
 
+// function to create user in database
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, password, pic } = req.body;
 
@@ -36,6 +37,7 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     }
 });
 
+//function to sign in user - with verifcation data on database 
 export const authUser = asyncHandler( async ( req: Request, res: Response) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
